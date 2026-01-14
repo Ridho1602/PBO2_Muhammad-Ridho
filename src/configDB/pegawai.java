@@ -9,11 +9,23 @@ import java.sql.Driver;
 import java.sql.Statement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
+import java.sql.ResultSetMetaData;
 import javax.swing.table.DefaultTableModel;
+import java.io.File;
+import java.util.Set;
+import net.sf.jasperreports.engine.JREmptyDataSource;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperCompileManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.design.JRDesignQuery;
+import net.sf.jasperreports.engine.design.JasperDesign;
+import net.sf.jasperreports.engine.xml.JRXmlLoader;
+import net.sf.jasperreports.view.JasperViewer;
 
 /**
  *
@@ -34,12 +46,13 @@ public class pegawai {
     
     public pegawai(){
         try {
-            Driver mysqlDriver = new com.mysql.cj.jdbc.Driver();
-            DriverManager.registerDriver(mysqlDriver);
-            koneksi = DriverManager.getConnection(url, username, password);
-            System.out.println("Berhasil dikoneksikan ke database");
+           Driver mysqldriver = new com.mysql.cj.jdbc.Driver();
+           DriverManager.registerDriver(mysqldriver);
+           koneksi = DriverManager.getConnection(url,username,password);
+           System.out.print("Berhasil dikoneksikan");
         } catch (SQLException error) {
             JOptionPane.showMessageDialog(null, error.getMessage());
+                
         }
     }
      
@@ -133,6 +146,21 @@ public class pegawai {
             komponenTabel.setModel(modelTable);
         } catch (Exception e) {
             
+        }
+    }
+    
+    public void cetakLaporan(String fileLaporan, String SQL){
+        try {
+            File file = new File(fileLaporan);
+            JasperDesign jasDes = JRXmlLoader.load(file);
+            JRDesignQuery query = new JRDesignQuery();
+            query.setText(SQL);
+            jasDes.setQuery(query);
+            JasperReport jr = JasperCompileManager.compileReport(jasDes);
+            JasperPrint jp = JasperFillManager.fillReport(jr, null, this.koneksi);
+            JasperViewer.viewReport(jp);
+            
+        } catch (Exception e) {
         }
     }
 
